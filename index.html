@@ -74,6 +74,152 @@
       }
     }
 
+    
+    function SJF(arTime, buTime) {
+    const jobs = arTime.map((item, index) => {return {
+        job: (index + 10).toString(36).toUpperCase(),
+        at: item,
+        bt: buTime[index],
+      };
+    }).sort((a, b) => { //sort jobs according to arrival time
+      if (a.at > b.at) return 1;
+      else if (a.at < b.at) return -1;
+      if (a.bt > b.bt) return 1;
+      else if (a.bt < b.bt) return -1;
+      return 0;
+    });
+
+    let finishTime = [], ganttChart = [];
+    const jobsDone = [], readyQ = [], finishedJobs = [];
+
+    for (let i = 0; i < jobs.length; i++) {
+     //add first job in readyQ and into jobs_Done
+     if (i === 0) {
+      readyQ.push(jobs[0]);
+      finishTime.push(jobs[0].at + jobs[0].bt);
+      jobsDone.push({ 
+        ...jobs[0],
+        ft: finishTime[0],
+        tat: finishTime[0] - jobs[0].at,
+        wt: finishTime[0] - jobs[0].at - jobs[0].bt,
+      });
+
+      //add jobs that have arrived during run time of first job
+      jobs.forEach((j) => {
+        if (j.at <= finishTime[0] && !readyQ.includes(j)) 
+          readyQ.push(j);
+      });
+
+      //removes first job that have finished running from readyQ
+      readyQ.shift();
+      finishedJobs.push(jobs[0]);
+
+      //add first job into gantt chart 
+      ganttChart.push({
+        job: jobs[0].job,
+        start: jobs[0].at,
+        stop: finishTime[0],
+      });
+
+    } else { 
+      //add jobs that have not run into readyQ
+      if (readyQ.length === 0 &&
+          finishedJobs.length !== jobs.length) {
+        const unfinishedJobs = jobs.filter((j) => {
+          return !finishedJobs.includes(j);
+        }).sort((a, b) => {
+            if (a.at > b.at) return 1;
+            else if (a.at < b.at) return -1;
+            if (a.bt > b.bt) return 1;
+            else if (a.bt < a.bt) return -1;
+            return 0;
+          });
+      }
+
+      //sort readyQ by burst time
+      const readyQsortBT = [...readyQ].sort((a, b) => {
+        if (a.bt > b.bt) return 1;
+        else if (a.bt < b.bt) return -1;
+        else if (a.at > b.at) return 1;
+        if (a.at < b.at) return -1;
+        return 0;
+      });
+
+      //jobs in toRun are sorted according to burstTime
+      const toRun = readyQsortBT[0];
+
+      //add the previous job's finish time into prevFT
+      const prevFT = finishTime[finishTime.length - 1];
+
+      if (toRun.at > prevFT) {
+        finishTime.push(toRun.at + toRun.bt);
+        let nextFT = finishTime[finishTime.length - 1];
+        ganttChart.push({
+          job: toRun.job,
+          start: toRun.at,
+          stop: nextFT,
+        });
+      } else { 
+        finishTime.push(prevFT + toRun.bt);
+        let nextFT = finishTime[finishTime.length - 1];
+        ganttChart.push({
+          job: toRun.job,
+          start: prevFT,
+          stop: nextFT,
+        });
+      }
+
+      //add the next job's finish time into nextFT
+      let nextFT = finishTime[finishTime.length - 1];
+
+      //add the next finished job into jobs_Done
+      jobsDone.push({
+        ...toRun,
+        ft: nextFT,
+        tat: nextFT - toRun.at,
+        wt: nextFT - toRun.at - toRun.bt,
+      });
+
+      //checks and add jobs that arrived during runtime 
+      //of prev jobs into readyQ
+      jobs.forEach((j) => {if (j.at <= nextFT &&
+        !readyQ.includes(j) && !finishedJobs.includes(j))
+          readyQ.push(j);
+      });
+
+      let indexToRemove = readyQ.indexOf(toRun);
+    
+      //removes the jobs that have run from readyQ
+      if (indexToRemove > -1) 
+        readyQ.splice(indexToRemove, 1);
+
+      finishedJobs.push(toRun);
+        }
+      }
+
+      // Sort jobs by arrival time
+      jobsDone.sort((a, b) => {
+      if (a.at > b.at) return 1;
+      else if (a.at < b.at) return -1;
+      if (a.job > b.job) return 1;
+      else if (a.job < b.job) return -1;
+      return 0;
+      });
+
+      let sumTAT = 0 , sumWT = 0;
+
+       //calculate average turnAroundTime
+      jobsDone.forEach((j) => {sumTAT += j.tat});
+      let avrgTAT = sumTAT/jobs.length;
+
+       //calculate average waitingTime
+      jobsDone.forEach((j) => {sumWT += j.wt});
+      let avrgWT = sumWT/jobs.length;
+
+      return { jobsDone, ganttChart };
+    };
+    
+    
     function SRTF(arrivalTime, burstTime){
       const processesInfo = arrivalTime
       .map((item, index) => {
