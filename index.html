@@ -113,7 +113,7 @@
 
     function visualise(ans){
       let gantt = document.getElementById('gantt')
-      console.log(gantt)
+      gantt.innerHTML = ""
       let tbl = document.createElement('table');
       const gantt_row = tbl.insertRow();
       for(let i = 0; i < ans.ganttChart.length; i++){
@@ -135,6 +135,7 @@
       }
       gantt.appendChild(tbl)
       let result = document.getElementById('result')
+      result.innerHTML = ""
       let result_table = document.createElement('table');
       result_table.style.border = '1px solid black'
       const header_row = result_table.insertRow();
@@ -199,11 +200,13 @@
       let avgTat = sumTat/ans.jobsDone.length;
 
       let tatelem = document.getElementById('avgtat')
+      tatelem.innerHTML = ""
       let TatP = document.createElement('p');
       TatP.appendChild(document.createTextNode(`Total Turnaround Time = ${sumTat} \u00A0\u00A0\u00A0\u00A0Average Turnaround Time = ${avgTat}`));
       tatelem.appendChild(TatP)
 
       let wtelem = document.getElementById('avgwt')
+      wtelem.innerHTML = ""
       let wtP = document.createElement('p');
       wtP.appendChild(document.createTextNode(`Total Waiting Time = ${sumWt}\u00A0\u00A0\u00A0\u00A0Average Waiting Time = ${avgWt}`));
       wtelem.appendChild(wtP)
