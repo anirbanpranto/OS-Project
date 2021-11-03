@@ -38,6 +38,14 @@
           <div class="card shadow p-3 mb-5 bg-white rounded text-center">
             <div class="card-body">
               <h1><b>OUTPUT</b></h1>
+              <div class="d-flex justify-content-center" id="gantt"></div>
+              <br/>
+              <br/>
+              <div class="d-flex justify-content-center" id="result"></div>
+              <br/>
+              <br/>
+              <div class="d-flex justify-content-center" id="avgtat"></div>
+              <div class="d-flex justify-content-center" id="avgwt"></div>
             </div>
           </div>
         </div>
@@ -64,17 +72,120 @@
           let timeQuantum = 3;
           const ans = roundRobin(arrival_array, burst_array, timeQuantum)
           console.log(ans);
+          visualise(ans);
       }
 
       if(algo==='2'){
           //non preepmt sjf goes here
+          const ans = SJF(arrival_array, burst_array)
+          console.log(ans)
+          visualise(ans);
       }
 
       if(algo==='3'){
           //preepmt sjf goes here
           const ans = SRTF(arrival_array, burst_array);
           console.log(ans);
+          visualise(ans);
       }
+    }
+
+    function visualise(ans){
+      let gantt = document.getElementById('gantt')
+      console.log(gantt)
+      let tbl = document.createElement('table');
+      const gantt_row = tbl.insertRow();
+      for(let i = 0; i < ans.ganttChart.length; i++){
+        let gantt_cell = gantt_row.insertCell();
+        gantt_cell.style.width = '70px'
+        gantt_cell.style.height = '50px'
+        gantt_cell.style.padding = '10px'
+        gantt_cell.style.border = '1px solid black';
+        gantt_cell.appendChild(document.createTextNode(`${ans.ganttChart[i].job}`))
+      }
+      const gantt_row_2 = tbl.insertRow();
+      for(let i = 0; i < ans.ganttChart.length; i++){
+        let gantt_cell = gantt_row_2.insertCell();
+        gantt_cell.style.width = '70px'
+        gantt_cell.appendChild(document.createTextNode(`${ans.ganttChart[i].start}\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0`))
+        if(i == ans.ganttChart.length - 1){
+          gantt_cell.appendChild(document.createTextNode(`${ans.ganttChart[i].stop}`))
+        }
+      }
+      gantt.appendChild(tbl)
+      let result = document.getElementById('result')
+      let result_table = document.createElement('table');
+      result_table.style.border = '1px solid black'
+      const header_row = result_table.insertRow();
+      let process = header_row.insertCell();
+      let at = header_row.insertCell();
+      let bt = header_row.insertCell();
+      let ft = header_row.insertCell();
+      let tat = header_row.insertCell();
+      let wat = header_row.insertCell();
+      header_row.style.height = '50px'
+      process.appendChild(document.createTextNode(`Process`))
+      at.appendChild(document.createTextNode(`Arrival Time`))
+      bt.appendChild(document.createTextNode(`Burst Time`))
+      ft.appendChild(document.createTextNode(`Finish Time`))
+      tat.appendChild(document.createTextNode(`TurnAround Time`))
+      wat.appendChild(document.createTextNode(`Waiting Time`))
+      at.style.border = '1px solid black';
+      bt.style.border = '1px solid black';
+      ft.style.border = '1px solid black';
+      tat.style.border = '1px solid black';
+      wat.style.border = '1px solid black';
+      process.style.border = '1px solid black';
+      at.style.width = '100px';
+      bt.style.width = '100px';
+      ft.style.width = '100px';
+      tat.style.width = '100px';
+      wat.style.width = '100px';
+      process.style.width = '100px';
+      for(let i = 0; i < ans.jobsDone.length; i++){
+        const result_row = result_table.insertRow();
+        result_row.style.height = '50px'
+        let processv = result_row.insertCell();
+        let atv = result_row.insertCell();
+        let btv = result_row.insertCell();
+        let ftv = result_row.insertCell();
+        let tatv = result_row.insertCell();
+        let watv = result_row.insertCell();
+        atv.style.border = '1px solid black';
+        btv.style.border = '1px solid black';
+        ftv.style.border = '1px solid black';
+        tatv.style.border = '1px solid black';
+        watv.style.border = '1px solid black';
+        processv.style.border = '1px solid black';
+        processv.appendChild(document.createTextNode(`${ans.jobsDone[i].job}`))
+        atv.appendChild(document.createTextNode(`${ans.jobsDone[i].at}`))
+        btv.appendChild(document.createTextNode(`${ans.jobsDone[i].bt}`))
+        ftv.appendChild(document.createTextNode(`${ans.jobsDone[i].ft}`))
+        tatv.appendChild(document.createTextNode(`${ans.jobsDone[i].tat}`))
+        watv.appendChild(document.createTextNode(`${ans.jobsDone[i].wat}`))
+      }
+      result.appendChild(result_table)
+      
+      let sumWt = 0;
+      let sumTat = 0;
+
+      for(let i = 0; i < ans.jobsDone.length; i++){
+        sumWt += ans.jobsDone[i].wat;
+        sumTat += ans.jobsDone[i].tat;
+      }
+
+      let avgWt = sumWt/ans.jobsDone.length;
+      let avgTat = sumTat/ans.jobsDone.length;
+
+      let tatelem = document.getElementById('avgtat')
+      let TatP = document.createElement('p');
+      TatP.appendChild(document.createTextNode(`Total Turnaround Time = ${sumTat} \u00A0\u00A0\u00A0\u00A0Average Turnaround Time = ${avgTat}`));
+      tatelem.appendChild(TatP)
+
+      let wtelem = document.getElementById('avgwt')
+      let wtP = document.createElement('p');
+      wtP.appendChild(document.createTextNode(`Total Waiting Time = ${sumWt}\u00A0\u00A0\u00A0\u00A0Average Waiting Time = ${avgWt}`));
+      wtelem.appendChild(wtP)
     }
     
     function roundRobin(arrivalTime, burstTime, timeQuantum){
@@ -92,14 +203,10 @@
           return 0;
         });
 
-      const solvedProcessesInfo = [];
-      const ganttChartInfo: ganttChartInfoType = [];
+      const jobsDone = [];
+      const ganttChart = [];
 
-      const readyQueue: {
-        job: string;
-        at: number;
-        bt: number;
-      }[] = [];
+      const readyQueue = [];
       let currentTime = processesInfo[0].at;
       const unfinishedJobs = [...processesInfo];
 
@@ -110,7 +217,7 @@
 
       readyQueue.push(unfinishedJobs[0]);
       while (
-        Object.values(remainingTime).reduce((acc: number, cur: number) => {
+        Object.values(remainingTime).reduce((acc, cur) => {
           return acc + cur;
         }, 0) &&
         unfinishedJobs.length > 0
@@ -130,7 +237,7 @@
           const prevCurrentTime = currentTime;
           currentTime += remainingT;
 
-          ganttChartInfo.push({
+          ganttChart.push({
             job: processToExecute.job,
             start: prevCurrentTime,
             stop: currentTime,
@@ -140,7 +247,7 @@
           const prevCurrentTime = currentTime;
           currentTime += timeQuantum;
 
-          ganttChartInfo.push({
+          ganttChart.push({
             job: processToExecute.job,
             start: prevCurrentTime,
             stop: currentTime,
@@ -172,7 +279,7 @@
             readyQueue.splice(indexToRemoveRQ, 1);
           }
 
-          solvedProcessesInfo.push({
+          jobsDone.push({
             ...processToExecute,
             ft: currentTime,
             tat: currentTime - processToExecute.at,
@@ -182,7 +289,7 @@
       }
 
       // Sort the processes arrival time and then by job name
-      solvedProcessesInfo.sort((obj1, obj2) => {
+      jobsDone.sort((obj1, obj2) => {
         if (obj1.at > obj2.at) return 1;
         if (obj1.at < obj2.at) return -1;
         if (obj1.job > obj2.job) return 1;
@@ -190,9 +297,8 @@
         return 0;
       });
 
-      return { solvedProcessesInfo, ganttChartInfo };
+      return { jobsDone, ganttChart };
     };
-    }
     
     function SRTF(arrivalTime, burstTime){
       const processesInfo = arrivalTime
@@ -210,8 +316,8 @@
         if (obj1.bt < obj2.bt) return -1;
         return 0;
       });
-      const solvedProcessesInfo = [];
-      const ganttChartInfo = [];
+      const jobsDone = [];
+      const ganttChart = [];
 
       const readyQueue = [];
       let currentTime = processesInfo[0].at;
@@ -278,7 +384,7 @@
             readyQueue.push(p);
             const prevCurrentTime = currentTime;
             currentTime += amount;
-            ganttChartInfo.push({
+            ganttChart.push({
               job: processToExecute.job,
               start: prevCurrentTime,
               stop: currentTime
@@ -312,7 +418,7 @@
               }
             });
 
-            ganttChartInfo.push({
+            ganttChart.push({
               job: processToExecute.job,
               start: processToExecute.at,
               stop: currentTime
@@ -329,7 +435,7 @@
               }
             });
 
-            ganttChartInfo.push({
+            ganttChart.push({
               job: processToExecute.job,
               start: prevCurrentTime,
               stop: currentTime
@@ -351,7 +457,7 @@
             readyQueue.splice(indexToRemoveRQ, 1);
           }
 
-          solvedProcessesInfo.push({
+          jobsDone.push({
             ...processToExecute,
             ft: currentTime,
             tat: currentTime - processToExecute.at,
@@ -361,7 +467,7 @@
       }
 
       // Sort the processes by job name within arrival time
-      solvedProcessesInfo.sort((obj1, obj2) => {
+      jobsDone.sort((obj1, obj2) => {
         if (obj1.at > obj2.at) return 1;
         if (obj1.at < obj2.at) return -1;
         if (obj1.job > obj2.job) return 1;
@@ -369,7 +475,7 @@
         return 0;
       });
 
-      return { solvedProcessesInfo, ganttChartInfo };
+      return { jobsDone, ganttChart };
     };
     
       function SJF(arTime, buTime) {
