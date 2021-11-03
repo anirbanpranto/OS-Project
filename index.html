@@ -111,6 +111,17 @@
       }
     }
 
+    function clear(){
+      let gantt = document.getElementById('gantt')
+      gantt.innerHTML = ""
+      let result = document.getElementById('result')
+      result.innerHTML = ""
+      let tatlem = document.getElementById('avgtat')
+      tatelem.innerHTML = ""
+      let wtelem = document.getElementById('avgwt')
+      wtelem.innerHTML = ""
+    }
+
     function visualise(ans){
       let gantt = document.getElementById('gantt')
       gantt.innerHTML = ""
@@ -144,25 +155,25 @@
       let bt = header_row.insertCell();
       let ft = header_row.insertCell();
       let tat = header_row.insertCell();
-      let wat = header_row.insertCell();
+      let wt = header_row.insertCell();
       header_row.style.height = '50px'
       process.appendChild(document.createTextNode(`Process`))
       at.appendChild(document.createTextNode(`Arrival Time`))
       bt.appendChild(document.createTextNode(`Burst Time`))
       ft.appendChild(document.createTextNode(`Finish Time`))
       tat.appendChild(document.createTextNode(`TurnAround Time`))
-      wat.appendChild(document.createTextNode(`Waiting Time`))
+      wt.appendChild(document.createTextNode(`Waiting Time`))
       at.style.border = '1px solid black';
       bt.style.border = '1px solid black';
       ft.style.border = '1px solid black';
       tat.style.border = '1px solid black';
-      wat.style.border = '1px solid black';
+      wt.style.border = '1px solid black';
       process.style.border = '1px solid black';
       at.style.width = '100px';
       bt.style.width = '100px';
       ft.style.width = '100px';
       tat.style.width = '100px';
-      wat.style.width = '100px';
+      wt.style.width = '100px';
       process.style.width = '100px';
       for(let i = 0; i < ans.jobsDone.length; i++){
         const result_row = result_table.insertRow();
@@ -172,19 +183,19 @@
         let btv = result_row.insertCell();
         let ftv = result_row.insertCell();
         let tatv = result_row.insertCell();
-        let watv = result_row.insertCell();
+        let wtv = result_row.insertCell();
         atv.style.border = '1px solid black';
         btv.style.border = '1px solid black';
         ftv.style.border = '1px solid black';
         tatv.style.border = '1px solid black';
-        watv.style.border = '1px solid black';
+        wtv.style.border = '1px solid black';
         processv.style.border = '1px solid black';
         processv.appendChild(document.createTextNode(`${ans.jobsDone[i].job}`))
         atv.appendChild(document.createTextNode(`${ans.jobsDone[i].at}`))
         btv.appendChild(document.createTextNode(`${ans.jobsDone[i].bt}`))
         ftv.appendChild(document.createTextNode(`${ans.jobsDone[i].ft}`))
         tatv.appendChild(document.createTextNode(`${ans.jobsDone[i].tat}`))
-        watv.appendChild(document.createTextNode(`${ans.jobsDone[i].wat}`))
+        wtv.appendChild(document.createTextNode(`${ans.jobsDone[i].wt}`))
       }
       result.appendChild(result_table)
       
@@ -192,7 +203,7 @@
       let sumTat = 0;
 
       for(let i = 0; i < ans.jobsDone.length; i++){
-        sumWt += ans.jobsDone[i].wat;
+        sumWt += ans.jobsDone[i].wt;
         sumTat += ans.jobsDone[i].tat;
       }
 
@@ -202,13 +213,13 @@
       let tatelem = document.getElementById('avgtat')
       tatelem.innerHTML = ""
       let TatP = document.createElement('p');
-      TatP.appendChild(document.createTextNode(`Total Turnaround Time = ${sumTat} \u00A0\u00A0\u00A0\u00A0Average Turnaround Time = ${avgTat}`));
+      TatP.appendChild(document.createTextNode(`Total Turnaround Time = ${sumTat} \u00A0\u00A0\u00A0\u00A0Average Turnaround Time = ${avgTat.toFixed(2)}`));
       tatelem.appendChild(TatP)
 
       let wtelem = document.getElementById('avgwt')
       wtelem.innerHTML = ""
       let wtP = document.createElement('p');
-      wtP.appendChild(document.createTextNode(`Total Waiting Time = ${sumWt}\u00A0\u00A0\u00A0\u00A0Average Waiting Time = ${avgWt}`));
+      wtP.appendChild(document.createTextNode(`Total Waiting Time = ${sumWt}\u00A0\u00A0\u00A0\u00A0Average Waiting Time = ${avgWt.toFixed(2)}`));
       wtelem.appendChild(wtP)
     }
     
@@ -307,7 +318,7 @@
             ...processToExecute,
             ft: currentTime,
             tat: currentTime - processToExecute.at,
-            wat: currentTime - processToExecute.at - processToExecute.bt,
+            wt: currentTime - processToExecute.at - processToExecute.bt,
           });
         }
       }
@@ -485,7 +496,7 @@
             ...processToExecute,
             ft: currentTime,
             tat: currentTime - processToExecute.at,
-            wat: currentTime - processToExecute.at - processToExecute.bt,
+            wt: currentTime - processToExecute.at - processToExecute.bt,
           });
         }
       }
